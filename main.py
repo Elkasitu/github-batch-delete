@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
+import getpass
 
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 
-def main(username, password):
+def prompt_credentials():
+    username = input("Username: ")
+    password = getpass.getpass()
+
+    return username, password
+
+
+def main():
+    # TODO: Ask for filter or list of repo names to delete
     # Init, access login page
     driver = webdriver.Chrome()
     driver.get("http://www.github.com/login")
+
+    username, password = prompt_credentials()
 
     # Login
     usr = driver.find_element_by_name("login")
@@ -79,5 +89,4 @@ def main(username, password):
 
 
 if __name__ == '__main__':
-    # TODO: Better authentication
-    main(*sys.argv[1:])
+    main()
