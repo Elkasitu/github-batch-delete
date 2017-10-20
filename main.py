@@ -15,6 +15,18 @@ def prompt_credentials():
     return username, password
 
 
+def prompt_confirm_delete():
+    while True:
+        ans = input("Are you sure you want to delete these repos? (y/n) ")
+        if ans:
+            if ans[0].lower() == 'y':
+                return True
+            elif ans[0].lower() == 'n':
+                return False
+
+        print("%s is not a valid answer, type 'y' or 'n'" % ans)
+
+
 def main():
     # TODO: Ask for filter or list of repo names to delete
     # Init, access login page
@@ -57,9 +69,19 @@ def main():
         except Exception:
             break
 
-    # TODO: Display the list of repos to be deleted and ask the user for
-    # confirmation before proceeding
+    for repo in repos:
+        print(repo)
 
+    if prompt_confirm_delete():
+        delete_repos(driver, username, password, repos)
+
+    driver.quit()
+
+
+def delete_repos(driver, username, password, repos):
+    """
+    Permanently deletes all the repos found in repo_list
+    """
     i = 1
     for repo in list(repos):
         driver.get("https://github.com/%s/%s/settings" % (username, repo))
@@ -84,8 +106,6 @@ def main():
         max = len(repos)
         print("Repository %s successfully deleted! (%d/%d)" % (repo, i, max))
         i += 1
-
-    driver.quit()
 
 
 if __name__ == '__main__':
