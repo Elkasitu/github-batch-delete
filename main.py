@@ -27,13 +27,17 @@ def prompt_confirm_delete():
         print("%s is not a valid answer, type 'y' or 'n'" % ans)
 
 
+def prompt_filter():
+    return input("Enter a url-form filter: ")
+
+
 def main():
-    # TODO: Ask for filter or list of repo names to delete
+    # Prompt user for credentials
+    username, password = prompt_credentials()
+
     # Init, access login page
     driver = webdriver.Chrome()
     driver.get("http://www.github.com/login")
-
-    username, password = prompt_credentials()
 
     # Login
     usr = driver.find_element_by_name("login")
@@ -45,15 +49,12 @@ def main():
     pwd.send_keys(password)
     pwd.send_keys(Keys.RETURN)
 
-    # Find to-delete repos
-    # TODO: Generalize
+    query = prompt_filter()
     driver.get(
-        "https://github.com/%s?tab=repositories&q=cb-gh&type=fork" % username
+        "https://github.com/%s?%s" % (username, query)
     )
 
     repos = set()
-
-    # TODO: Atomize code
 
     while True:
         p = driver.find_elements_by_xpath(
@@ -69,11 +70,14 @@ def main():
         except Exception:
             break
 
-    for repo in repos:
-        print(repo)
+    if len(repos) > 0:
+        for repo in repos:
+            print(repo)
 
-    if prompt_confirm_delete():
-        delete_repos(driver, username, password, repos)
+        if prompt_confirm_delete():
+            delete_repos(driver, username, password, repos)
+    else:
+        print("No repositories found, did you enter a good filter?")
 
     driver.quit()
 
